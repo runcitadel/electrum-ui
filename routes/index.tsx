@@ -101,7 +101,7 @@ export const handler: Handlers<ElectrumInfo | null> = {
     await client.connect();
     const data = await client.sendRequest<{
       height: number;
-    }>("blockchain.headers.subscribe", [], 222);
+    }>("blockchain.headers.subscribe", [], 230);
 
     const ElectrumInfo: ElectrumInfo = {
       syncPercentage: data?.height,
