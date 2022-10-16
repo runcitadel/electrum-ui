@@ -9,7 +9,7 @@ const bitcoindClient = new BitcoinRPC({
   username: Deno.env.get("BITCOIN_RPC_USER")!,
   password: Deno.env.get("BITCOIN_RPC_PASS")!,
 });
-const electrumClient = new ElectrumClient(Deno.env.get("ELECTRUM_IP")!, parseInt(Deno.env.get("ELECTRUM_PORT")!));
+const electrumClient = new ElectrumClient(Deno.env.get("ELECTRUM_IP")!, parseInt(Deno.env.get("ELECTRUM_PORT")!) || 50001);
 
 export const handler = async (_req: Request, _ctx: HandlerContext): Promise<Response> => {
   let bitoinSyncPercent = 0;
@@ -35,7 +35,7 @@ export const handler = async (_req: Request, _ctx: HandlerContext): Promise<Resp
     bitoinSyncPercent,
     bitcoinHeight,
     electrumHeight,
-    electrumPercent: electrumHeight == 0 ? 0 : Math.round((electrumHeight / bitcoinHeight) * 10000) / 100,
+    electrumPercent: bitcoinHeight == 0 ? -1 : (Math.round((electrumHeight / bitcoinHeight) * 10000) / 100),
   }), {
     headers: new Headers({
       "Content-Type": "application/json"

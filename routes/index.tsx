@@ -18,7 +18,7 @@ const bitcoindClient = new BitcoinRPC({
   username: Deno.env.get("BITCOIN_RPC_USER")!,
   password: Deno.env.get("BITCOIN_RPC_PASS")!,
 });
-const electrumClient = new ElectrumClient(Deno.env.get("ELECTRUM_IP")!, parseInt(Deno.env.get("ELECTRUM_PORT")!));
+const electrumClient = new ElectrumClient(Deno.env.get("ELECTRUM_IP")!, parseInt(Deno.env.get("ELECTRUM_PORT")!) || 50001);
 
 export const handler: Handlers<ElectrumInfo | null> = {
   async GET(_, ctx) {
@@ -46,7 +46,7 @@ export const handler: Handlers<ElectrumInfo | null> = {
       bitoinSyncPercent,
       bitcoinHeight,
       electrumHeight,
-      electrumPercent: bitcoinHeight == 0 ? 0 : Math.round((electrumHeight / bitcoinHeight) * 10000) / 100,
+      electrumPercent: bitcoinHeight == 0 ? -1 : (Math.round((electrumHeight / bitcoinHeight) * 10000) / 100),
     };
     return ctx.render(ElectrumInfo);
   },
@@ -58,14 +58,14 @@ export default function Home({ data }: PageProps<ElectrumInfo | null>) {
       <Head>
         <title>Electrum Server</title>
       </Head>
-      <div class="p-4 mx-auto max-w-screen-md">
+      <div class="p-4 mx-auto h-screen w-screen flex items-center justify-center flex-col dark:bg-gray-900 dark:text-white">
         <img
           src="/logo.svg"
           class="w-32 h-32"
-          alt="the fresh logo: a sliced lemon dripping with juice"
+          alt="the electrum logo"
         />
         <p class="my-6">
-          Electrum Server is synced to block {data?.electrumHeight} ({data?.electrumPercent}%).
+          Electrum Server is synced to block {data?.electrumHeight}{data?.electrumPercent === -1 ? "" : ` (${data?.electrumPercent}%)`}.
         </p>
       </div>
     </>
