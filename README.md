@@ -1,11 +1,5 @@
-# fresh project
+# Electrum UI for Citadel
 
-### Usage
+This is the frontend for the Electrs and Fulcrum app on Citadel.
 
-Start the project:
-
-```
-deno task start
-```
-
-This will watch the project directory and restart as necessary.
+It provides information on how to connect to your Electrum server and show the current sync progress.
