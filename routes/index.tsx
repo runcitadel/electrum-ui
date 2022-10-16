@@ -19,7 +19,10 @@ const bitcoindClient = new BitcoinRPC({
   username: Deno.env.get("BITCOIN_RPC_USER")!,
   password: Deno.env.get("BITCOIN_RPC_PASS")!,
 });
-const electrumClient = new ElectrumClient(Deno.env.get("ELECTRUM_IP")!, parseInt(Deno.env.get("ELECTRUM_PORT")!) || 50001);
+const electrumClient = new ElectrumClient(
+  Deno.env.get("ELECTRUM_IP")!,
+  parseInt(Deno.env.get("ELECTRUM_PORT")!) || 50001,
+);
 
 export const handler: Handlers<ElectrumInfo | null> = {
   async GET(_, ctx) {
@@ -42,12 +45,14 @@ export const handler: Handlers<ElectrumInfo | null> = {
     } catch (e) {
       console.error(e);
     }
-  
+
     const ElectrumInfo: ElectrumInfo = {
       bitoinSyncPercent,
       bitcoinHeight,
       electrumHeight,
-      electrumPercent: bitcoinHeight == 0 ? -1 : (Math.round((electrumHeight / bitcoinHeight) * 10000) / 100),
+      electrumPercent: bitcoinHeight == 0
+        ? -1
+        : (Math.round((electrumHeight / bitcoinHeight) * 10000) / 100),
     };
     return ctx.render(ElectrumInfo);
   },
@@ -66,9 +71,23 @@ export default function Home({ data }: PageProps<ElectrumInfo | null>) {
           alt="the electrum logo"
         />
         <p class="my-2">
-          Your Electrum Server is synced to block {data?.electrumHeight}{data?.electrumPercent === -1 ? "" : ` (${data?.electrumPercent}%)`}.
+          Your Electrum Server is synced to block {data?.electrumHeight}
+          {data?.electrumPercent === -1 ? "" : ` (${data?.electrumPercent}%)`}.
         </p>
-        <span class="absolute bottom-4 right-4 text-gray-600 dark:text-gray-600">Powered by Citadel</span>
+        {data?.electrumPercent === 100
+          ? (
+            <>
+            <p>Your Electrum server is now ready to accept connections from apps on your Citadel and Bitcoin wallets.</p>
+            <p>
+              Visit "Connect wallet" the Citadel dashboard to see how to connect
+              various wallets to your Electrum server.
+            </p>
+            </>
+          )
+          : ""}
+        <span class="absolute bottom-4 right-4 text-gray-600 dark:text-gray-600">
+          Powered by Citadel
+        </span>
       </div>
     </>
   );
