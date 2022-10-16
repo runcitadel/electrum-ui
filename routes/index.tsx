@@ -4,6 +4,7 @@ import { Handlers, PageProps } from "$fresh/server.ts";
 import ElectrumClient from "../utils/electrum.ts";
 import BitcoinRPC from "https://deno.land/x/bitcoin_rpc@v1.0.2/mod.ts";
 import { getInfoResponse } from "../utils/bitcoin.ts";
+import ProgressBar from "../components/ProgressBar.tsx";
 
 interface ElectrumInfo {
   bitoinSyncPercent: number;
@@ -61,12 +62,13 @@ export default function Home({ data }: PageProps<ElectrumInfo | null>) {
       <div class="p-4 mx-auto h-screen w-screen flex items-center justify-center flex-col dark:bg-gray-900 dark:text-white">
         <img
           src="/logo.svg"
-          class="w-32 h-32"
+          class="w-32 h-32 mb-4"
           alt="the electrum logo"
         />
-        <p class="my-6">
+        <p class="my-2">
           Electrum Server is synced to block {data?.electrumHeight}{data?.electrumPercent === -1 ? "" : ` (${data?.electrumPercent}%)`}.
         </p>
+        <span class="absolute bottom-4 right-4 text-gray-600 dark:text-gray-600">Powered by Citadel</span>
       </div>
     </>
   );
