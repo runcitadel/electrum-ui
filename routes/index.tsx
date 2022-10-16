@@ -66,7 +66,7 @@ export default function Home({ data }: PageProps<ElectrumInfo | null>) {
           alt="the electrum logo"
         />
         <p class="my-2">
-          Electrum Server is synced to block {data?.electrumHeight}{data?.electrumPercent === -1 ? "" : ` (${data?.electrumPercent}%)`}.
+          Your Electrum Server is synced to block {data?.electrumHeight}{data?.electrumPercent === -1 ? "" : ` (${data?.electrumPercent}%)`}.
         </p>
         <span class="absolute bottom-4 right-4 text-gray-600 dark:text-gray-600">Powered by Citadel</span>
       </div>
