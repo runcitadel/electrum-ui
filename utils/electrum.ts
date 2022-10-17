@@ -82,7 +82,7 @@ export default class ElectrumClient {
         );
         const buffer = new Uint8Array(maxResponseLength);
         const read = await this.#connection!.read(buffer);
-        const content = buffer.slice(0, read!);
+        const content = buffer.slice(0, read! - 1);
         return JSON.parse(new TextDecoder().decode(content)).result;
     }
 }
