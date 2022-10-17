@@ -1,11 +1,8 @@
-import jsonSeqReader from "./jsonSeqReader.ts";
-
 /** An Electrum client that does not yet support parallel requests */
 export default class ElectrumClient {
     #connection: Deno.TcpConn | Deno.TlsConn | null = null;
     #connectionPromise: Promise<Deno.TcpConn | Deno.TlsConn> | null;
     #requests = 0;
-    #reader: AsyncGenerator | null = null;
     constructor(
         private hostname: string,
         private port: number,
@@ -62,12 +59,10 @@ export default class ElectrumClient {
                 });
             }
         }
-        this.#reader = jsonSeqReader(this.#connection?.readable!);
         this.sendRequest("server.version", ["Deno Electrum Client", "1.4"])
     }
 
     async disconnect() {
-        this.#reader = null;
         await this.#connection!.close();
     }
 
@@ -87,7 +82,9 @@ export default class ElectrumClient {
                 }) + "\r\n",
             ),
         );
-        const data = (await this.#reader?.next())!.value;
+        const reader = this.#connection.readable.getReader();
+        const rawData = await reader.read();
+        const data = JSON.parse(new TextDecoder().decode(rawData.value!));
         if (data.id !== id) {
             throw new Error("Response id does not match request ID!");
         }
