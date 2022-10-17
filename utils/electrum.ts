@@ -59,7 +59,7 @@ export default class ElectrumClient {
                 });
             }
         }
-        this.sendRequest("server.version", ["Deno Electrum Client", "1.4"])
+        await this.sendRequest("server.version", ["Deno Electrum Client", "1.4"])
     }
 
     async disconnect() {
