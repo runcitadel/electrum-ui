@@ -1,7 +1,11 @@
+import jsonSeqReader from "./jsonSeqReader.ts";
+
 /** An Electrum client that does not yet support parallel requests */
 export default class ElectrumClient {
     #connection: Deno.TcpConn | Deno.TlsConn | null = null;
     #connectionPromise: Promise<Deno.TcpConn | Deno.TlsConn> | null;
+    #requests = 0;
+    #reader: AsyncGenerator | null = null;
     constructor(
         private hostname: string,
         private port: number,
@@ -58,30 +62,35 @@ export default class ElectrumClient {
                 });
             }
         }
+        this.#reader = jsonSeqReader(this.#connection?.readable!);
         this.sendRequest("server.version", ["Deno Electrum Client", "1.4"])
     }
 
     async disconnect() {
+        this.#reader = null;
         await this.#connection!.close();
     }
 
-    async sendRequest<ReturnType extends unknown = unknown>(method: string, params: unknown, maxResponseLength = 32 * 1024): Promise<Awaited<ReturnType>> {
+    async sendRequest<ReturnType extends unknown = unknown>(method: string, params: unknown): Promise<ReturnType> {
+        this.#requests++;
         if (!this.#connection) {
             throw new Error("Not connected! Did you forget to call connect()?");
         }
+        const id = this.#requests;
         await this.#connection!.write(
             new TextEncoder().encode(
                 JSON.stringify({
                     jsonrpc: "2.0",
-                    id: 1,
+                    id,
                     method,
                     params,
                 }) + "\r\n",
             ),
         );
-        const buffer = new Uint8Array(maxResponseLength);
-        const read = await this.#connection!.read(buffer);
-        const content = buffer.slice(0, read! - 1);
-        return JSON.parse(new TextDecoder().decode(content)).result;
+        const data = (await this.#reader?.next())!.value;
+        if (data.id !== id) {
+            throw new Error("Response id does not match request ID!");
+        }
+        return data.result;
     }
 }
