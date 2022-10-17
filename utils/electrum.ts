@@ -82,9 +82,10 @@ export default class ElectrumClient {
                 }) + "\r\n",
             ),
         );
-        const reader = this.#connection.readable.getReader();
-        const rawData = await reader.read();
-        const data = JSON.parse(new TextDecoder().decode(rawData.value!));
+        const buffer = new Uint8Array(32 * 1024);
+        const read = await this.#connection.read(buffer);
+        const content = buffer.slice(0, read!);
+        const data = JSON.parse(new TextDecoder().decode(content!));
         if (data.id !== id) {
             throw new Error("Response id does not match request ID!");
         }
