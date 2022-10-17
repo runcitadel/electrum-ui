@@ -1,4 +1,3 @@
-
 /** An Electrum client that does not yet support parallel requests */
 export default class ElectrumClient {
     #connection: Deno.TcpConn | Deno.TlsConn | null = null;
@@ -66,7 +65,7 @@ export default class ElectrumClient {
         await this.#connection!.close();
     }
 
-    async sendRequest<ReturnType extends unknown = unknown>(method: string, params: unknown, maxResponseLength = 1000): Promise<Awaited<ReturnType>> {
+    async sendRequest<ReturnType extends unknown = unknown>(method: string, params: unknown, maxResponseLength = 32 * 1024): Promise<Awaited<ReturnType>> {
         if (!this.#connection) {
             throw new Error("Not connected! Did you forget to call connect()?");
         }

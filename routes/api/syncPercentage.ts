@@ -26,7 +26,7 @@ export const handler = async (_req: Request, _ctx: HandlerContext): Promise<Resp
     await electrumClient.connect();
     const data = await electrumClient.sendRequest<{
       height: number;
-    }>("blockchain.headers.subscribe", [], 230);
+    }>("blockchain.headers.subscribe", []);
     electrumHeight = data.height;
   } catch (e) {
     console.error(e);
